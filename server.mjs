@@ -1,70 +1,79 @@
-import fs from "node:fs/promises";
 import { createServer } from "node:http";
 import { customReq } from "./custom-req.mjs";
 import { customRes } from "./custom-res.mjs";
+import {
+  createCourse,
+  createLesson,
+  getCourseBySlug,
+  getCourses,
+  getLesson,
+  getLessonsByCourse,
+} from "./database.mjs";
 import { Router } from "./router.mjs";
 
 const router = new Router();
 
-router.post("/products", postProduct);
-router.get("/products", getProducts);
-router.get("/product", getProduct);
+router.post("/courses", (req, res) => {
+  const { slug, name, description } = req.body ?? {};
+  const created = createCourse({ slug, name, description });
 
-async function postProduct(req, res) {
-  const { category, slug } = req.body;
-  try {
-    await fs.mkdir(`./products/${category}`, { recursive: true });
-  } catch (error) {
-    console.error("Error: ", error);
+  if (created) {
+    res.status(201).json("Created course");
+  } else {
+    res.status(400).json("Failed to create course");
   }
-  try {
-    await fs.writeFile(
-      `./products/${category}/${slug}.json`,
-      JSON.stringify(req.body),
-      { recursive: true },
-    );
-    res.status(201).end("Product created: " + JSON.stringify(req.body));
-  } catch (error) {
-    console.error("Error: ", error);
-    res.status(500).end("Error");
+});
+
+router.post("/lessons", (req, res) => {
+  const { slug, name, courseSlug } = req.body ?? {};
+  const created = createLesson({ slug, name, courseSlug });
+
+  if (created) {
+    res.status(201).json("Created lesson");
+  } else {
+    res.status(400).json("Failed to create lesson");
   }
-}
+});
 
-async function getProducts(_, res) {
-  try {
-    const files = await fs.readdir("./products", { recursive: true });
-    const productsFiles = files.filter((file) => file.endsWith(".json"));
-    const promises = productsFiles.map((product) =>
-      fs.readFile(`./products/${product}`, "utf-8"),
-    );
-    const productsData = await Promise.all(promises);
-    const products = productsData.map(JSON.parse);
-
-    res.status(200).json(products);
-  } catch (error) {
-    console.error("Error: ", error);
-    res.status(500).end("Error");
+router.get("/courses", (req, res) => {
+  const courses = getCourses();
+  if (courses && courses.length) {
+    res.status(200).json(courses);
+  } else {
+    res.status(400).json("Failed to find courses");
   }
-}
+});
 
-async function getProduct(req, res) {
-  let category = req.query.get("category");
-  let slug = req.query.get("slug");
-  let product = null;
-
-  if (!category || !slug) {
-    return res.status(400).end("Missing category or slug query parameters");
+router.get("/course", (req, res) => {
+  const slug = req.query.get("slug");
+  const course = getCourseBySlug(slug);
+  if (course) {
+    res.status(200).json(course);
+  } else {
+    res.status(400).json("No course found");
   }
+});
 
-  try {
-    product = await fs.readFile(`./products/${category}/${slug}.json`, "utf-8");
-    product = JSON.parse(product);
-    res.status(200).end("Product: " + JSON.stringify(product));
-  } catch (error) {
-    console.error("Error: ", error);
-    res.status(404).end("Product not found");
+router.get("/lessons", (req, res) => {
+  const courseSlug = req.query.get("course");
+  const lessons = getLessonsByCourse(courseSlug);
+  if (lessons) {
+    res.status(200).json(lessons);
+  } else {
+    res.status(400).json("Failed to find lessons");
   }
-}
+});
+
+router.get("/lesson", (req, res) => {
+  const slug = req.query.get("slug");
+  const courseSlug = req.query.get("course");
+  const lesson = getLesson(slug, courseSlug);
+  if (lesson) {
+    res.status(200).json(lesson);
+  } else {
+    res.status(400).json("Failed to find lesson");
+  }
+});
 
 const server = createServer(async (request, response) => {
   const req = await customReq(request);
