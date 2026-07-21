@@ -1,6 +1,6 @@
 import { createServer } from "node:http";
-import { customReq } from "./custom-req.mjs";
-import { customRes } from "./custom-res.mjs";
+import { customReq } from "./custom-req.ts";
+import { customRes } from "./custom-res.ts";
 import {
   createCourse,
   createLesson,
@@ -8,8 +8,8 @@ import {
   getCourses,
   getLesson,
   getLessonsByCourse,
-} from "./database.mjs";
-import { Router } from "./router.mjs";
+} from "./database.ts";
+import { Router } from "./router.ts";
 
 const router = new Router();
 
