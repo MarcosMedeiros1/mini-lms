@@ -1,9 +1,18 @@
-export async function customReq(req) {
-  const url = new URL(req.url, "http://localhost:3000");
+import type { IncomingMessage } from "node:http";
+
+export interface CustomRequest extends IncomingMessage {
+  query: URLSearchParams;
+  pathname: string;
+  body: Record<string, any>;
+}
+
+export async function customReq(request: IncomingMessage) {
+  const req = request as CustomRequest;
+  const url = new URL(req.url || "", "http://localhost:3000");
   req.query = url.searchParams;
   req.pathname = url.pathname;
 
-  const chunks = [];
+  const chunks: Buffer[] = [];
   for await (const chunk of req) {
     chunks.push(chunk);
   }
@@ -13,7 +22,7 @@ export async function customReq(req) {
     const safeBody = body.trim();
     req.body = safeBody ? JSON.parse(safeBody) : null;
   } else {
-    req.body = body;
+    req.body = {};
   }
 
   return req;

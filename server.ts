@@ -79,7 +79,7 @@ const server = createServer(async (request, response) => {
   const req = await customReq(request);
   const res = customRes(response);
 
-  const handler = router.find(req.method, req.pathname);
+  const handler = router.find(req.method || "", req.pathname);
   if (handler) {
     handler(req, res);
   } else {

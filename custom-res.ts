@@ -1,12 +1,20 @@
-export function customRes(res) {
+import type { ServerResponse } from "node:http";
+
+export interface CustomResponse extends ServerResponse {
+  status(code: number): CustomResponse;
+  json(data: any): void;
+}
+
+export function customRes(response: ServerResponse) {
+  const res = response as CustomResponse;
   res.status = (statusCode) => {
     res.statusCode = statusCode;
     return res;
   };
-  res.json = (value) => {
+  res.json = (data) => {
     try {
       res.setHeader("Content-Type", "application/json");
-      return res.end(JSON.stringify(value));
+      res.end(JSON.stringify(data));
     } catch {
       res.status(500).end("error");
     }

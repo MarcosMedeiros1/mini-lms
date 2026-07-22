@@ -1,16 +1,24 @@
+import type { CustomRequest } from "./custom-req.ts";
+import type { CustomResponse } from "./custom-res.ts";
+
+type Handler = (
+  req: CustomRequest,
+  res: CustomResponse,
+) => Promise<void> | void;
+
 export class Router {
   routes = {
     GET: {},
     POST: {},
   };
 
-  get(route, handler) {
+  get(route: string, handler: Handler) {
     this.routes["GET"][route] = handler;
   }
-  post(route, handler) {
+  post(route: string, handler: Handler) {
     this.routes["POST"][route] = handler;
   }
-  find(method, route) {
+  find(method: string, route: string) {
     return this.routes[method]?.[route] || null;
   }
 }
