@@ -1,6 +1,9 @@
 import { Core } from "./core/core.ts";
+import { logger } from "./core/middleware/logger.ts";
 
 const core = new Core();
+
+core.router.use([logger]);
 
 core.router.get("/course/:slug", (req, res) => {
   const { slug } = req.params;

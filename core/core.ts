@@ -6,6 +6,7 @@ import {
 } from "node:http";
 import { customReq } from "./http/custom-req.ts";
 import { customRes } from "./http/custom-res.ts";
+import { bodyJson } from "./middleware/body-json.ts";
 import { Router } from "./router.ts";
 
 export class Core {
@@ -16,6 +17,10 @@ export class Core {
     const req = await customReq(request);
     const res = customRes(response);
 
+    for (const middleware of this.router.middlewares) {
+      await middleware(req, res);
+    }
+
     const matched = this.router.find(req.method || "", req.pathname);
 
     if (!matched) {
@@ -24,11 +29,16 @@ export class Core {
 
     const { route, params } = matched;
     req.params = params;
-    await route(req, res);
+
+    for (const middleware of route.middlewares) {
+      await middleware(req, res);
+    }
+    await route.handler(req, res);
   };
 
   constructor() {
     this.router = new Router();
+    this.router.use([bodyJson]);
     this.server = createServer(this.handler);
   }
 
