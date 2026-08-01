@@ -4,6 +4,7 @@ import {
   type Server,
   type ServerResponse,
 } from "node:http";
+import { Database } from "./database.ts";
 import { customReq } from "./http/custom-req.ts";
 import { customRes } from "./http/custom-res.ts";
 import { bodyJson } from "./middleware/body-json.ts";
@@ -13,6 +14,14 @@ import { RouteError } from "./utils/route-error.ts";
 export class Core {
   router: Router;
   server: Server;
+  db: Database;
+
+  constructor() {
+    this.router = new Router();
+    this.router.use([bodyJson]);
+    this.db = new Database("./lms.sqlite");
+    this.server = createServer(this.handler);
+  }
 
   handler = async (request: IncomingMessage, response: ServerResponse) => {
     try {
@@ -56,12 +65,6 @@ export class Core {
       }
     }
   };
-
-  constructor() {
-    this.router = new Router();
-    this.router.use([bodyJson]);
-    this.server = createServer(this.handler);
-  }
 
   init() {
     this.server.listen(3000, () => {
