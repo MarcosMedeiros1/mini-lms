@@ -1,3 +1,4 @@
+import { RouteError } from "@utils/route-error.ts";
 import {
   createServer,
   type IncomingMessage,
@@ -9,7 +10,6 @@ import { customReq } from "./http/custom-req.ts";
 import { customRes } from "./http/custom-res.ts";
 import { bodyJson } from "./middleware/body-json.ts";
 import { Router } from "./router.ts";
-import { RouteError } from "./utils/route-error.ts";
 
 export class Core {
   router: Router;

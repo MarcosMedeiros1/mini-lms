@@ -1,7 +1,7 @@
 import type { CustomRequest } from "./http/custom-req.ts";
 import type { CustomResponse } from "./http/custom-res.ts";
 
-type Handler = (
+export type Handler = (
   req: CustomRequest,
   res: CustomResponse,
 ) => Promise<void> | void;
