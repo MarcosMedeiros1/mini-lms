@@ -1,5 +1,4 @@
 import { Core } from "./core/core.ts";
-import { getCourseBySlug } from "./core/database.ts";
 import { logger } from "./core/middleware/logger.ts";
 import { RouteError } from "./core/utils/route-error.ts";
 
@@ -9,7 +8,9 @@ core.router.use([logger]);
 
 core.router.get("/course/:slug", (req, res) => {
   const { slug } = req.params;
-  const course = getCourseBySlug(slug);
+  const course = core.db
+    .query(`SELECT * FROM "courses" WHERE "slug" = ?`)
+    .get(slug);
   if (!course) {
     throw new RouteError(404, "No course found");
   }
