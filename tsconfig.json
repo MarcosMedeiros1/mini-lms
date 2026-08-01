@@ -11,10 +11,5 @@
     "skipLibCheck": true,
     "noEmit": true,
     "allowImportingTsExtensions": true,
-    "paths": {
-      "@utils/*": [
-        "./core/utils/*"
-      ]
-    }
   }
 }
