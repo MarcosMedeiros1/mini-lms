@@ -9,10 +9,10 @@ export class LmsApi extends Api {
       const writeResult = this.db
         .query(
           /*sql*/ `
-        INSERT OR IGNORE INTO 
-        "courses" ("slug", "title", "description", "lessons", "hours")
-        VALUES (?,?,?,?,?)
-      `,
+          INSERT OR IGNORE INTO 
+          "courses" ("slug", "title", "description", "lessons", "hours")
+          VALUES (?,?,?,?,?)
+          `,
         )
         .run(slug, title, description, lessons, hours);
       console.log(writeResult);
@@ -25,6 +25,37 @@ export class LmsApi extends Api {
         title: "Course created",
       });
     },
+    postLessons: (req, res) => {
+      const {
+        courseSlug,
+        slug,
+        title,
+        seconds,
+        video,
+        description,
+        order,
+        free,
+      } = req.body;
+      const writeResult = this.db
+        .query(
+          /*sql*/ `
+          INSERT OR IGNORE INTO "lessons" 
+          ("course_id", "slug", "title", "seconds",
+          "video", "description", "order", "free")
+          VALUES ((SELECT "id" FROM "courses" WHERE "slug" = ?),?,?,?,?,?,?,?)
+          `,
+        )
+        .run(courseSlug, slug, title, seconds, video, description, order, free);
+      console.log(writeResult);
+      if (writeResult.changes === 0) {
+        throw new RouteError(400, "Error on create lesson");
+      }
+      res.status(201).json({
+        id: writeResult.lastInsertRowid,
+        changes: writeResult.changes,
+        title: "Lesson created",
+      });
+    },
   } satisfies Api["handlers"];
 
   tables(): void {
@@ -34,5 +65,6 @@ export class LmsApi extends Api {
 
   routes(): void {
     this.router.post("/lms/courses", this.handlers.postCourses);
+    this.router.post("/lms/lessons", this.handlers.postLessons);
   }
 }
