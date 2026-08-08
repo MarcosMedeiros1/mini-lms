@@ -14,6 +14,6 @@ export async function customReq(request: IncomingMessage) {
   req.pathname = url.pathname;
   req.params = {};
   req.body = {};
-  
+
   return req;
 }

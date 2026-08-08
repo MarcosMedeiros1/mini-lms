@@ -145,7 +145,7 @@ const lessons = [
 
 const functions = {
   async postCourse() {
-    const response = await fetch(baseUrl + "/lms/courses", {
+    const response = await fetch(baseUrl + "/lms/course", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(courses.javascript),
@@ -155,13 +155,25 @@ const functions = {
   },
 
   async postLesson(lesson) {
-    const response = await fetch(baseUrl + "/lms/lessons", {
+    const response = await fetch(baseUrl + "/lms/lesson", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(lesson),
     });
     const body = await response.json();
     console.table(body);
+  },
+
+  async getCourses() {
+    const response = await fetch(baseUrl + "/lms/courses");
+    const body = await response.json();
+    console.log(body);
+  },
+
+  async getCourse() {
+    const response = await fetch(baseUrl + "/lms/course/javascript-completo");
+    const body = await response.json();
+    console.log(body);
   },
 };
 
