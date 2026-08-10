@@ -175,6 +175,14 @@ const functions = {
     const body = await response.json();
     console.log(body);
   },
+
+  async getLesson() {
+    const response = await fetch(
+      baseUrl + "/lms/lesson/javascript-completo/fetch-e-async-await",
+    );
+    const body = await response.json();
+    console.log(body);
+  },
 };
 
 // for (const lesson of lessons) {

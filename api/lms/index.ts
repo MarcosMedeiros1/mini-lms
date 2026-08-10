@@ -43,10 +43,26 @@ export class LmsApi extends Api {
     getCourse: (req, res) => {
       const { slug } = req.params;
       const course = this.query.selectCourse(slug);
+      const lessons = this.query.selectLessons(slug);
       if (!course) {
         throw new RouteError(404, "No course found");
       }
-      res.status(200).json(course);
+      res.status(200).json({ course, lessons });
+    },
+
+    getLesson: (req, res) => {
+      const { courseSlug, lessonSlug } = req.params;
+      const lesson = this.query.selectLesson(courseSlug, lessonSlug);
+      const nav = this.query.selectLessonNav(courseSlug, lessonSlug);
+
+      if (!lesson) {
+        throw new RouteError(404, "No lesson found");
+      }
+
+      const i = nav.findIndex((l) => l.slug === lesson.slug);
+      const prev = i === 0 ? null : nav.at(i - 1)?.slug;
+      const next = nav.at(i + 1)?.slug ?? null;
+      res.status(200).json({ ...lesson, prev, next });
     },
   } satisfies Api["handlers"];
 
@@ -60,5 +76,9 @@ export class LmsApi extends Api {
     this.router.get("/lms/courses", this.handlers.getCourses);
     this.router.get("/lms/course/:slug", this.handlers.getCourse);
     this.router.post("/lms/lesson", this.handlers.postLesson);
+    this.router.get(
+      "/lms/lesson/:courseSlug/:lessonSlug",
+      this.handlers.getLesson,
+    );
   }
 }
