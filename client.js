@@ -183,6 +183,21 @@ const functions = {
     const body = await response.json();
     console.log(body);
   },
+
+  async postUser() {
+    const response = await fetch(baseUrl + "/auth/user", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        name: "Marcos",
+        username: "marcos",
+        email: "marcos@email.com",
+        password: "1234",
+      }),
+    });
+    const body = await response.json();
+    console.table(body);
+  },
 };
 
 // for (const lesson of lessons) {
