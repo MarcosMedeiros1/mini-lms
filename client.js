@@ -204,12 +204,12 @@ const functions = {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
-        courseId: 1,
-        lessonId: 1,
+        courseId: process.argv[3],
+        lessonId: process.argv[4],
       }),
     });
     const body = await response.json();
-    console.table(body);
+    console.log(body);
   },
 
   async resetCourse() {
@@ -222,6 +222,20 @@ const functions = {
     });
     const body = await response.json();
     console.table(body);
+  },
+
+  async getCertificates() {
+    const response = await fetch(baseUrl + "/lms/certificates");
+    const body = await response.json();
+    console.log(body);
+  },
+
+  async getCertificate() {
+    const response = await fetch(
+      baseUrl + "/lms/certificate/" + process.argv[3],
+    );
+    const body = await response.json();
+    console.log(body);
   },
 };
 
