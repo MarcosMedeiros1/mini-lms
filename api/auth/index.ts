@@ -21,6 +21,22 @@ export class AuthApi extends Api {
       }
       res.status(200).json({ title: "User created" });
     },
+    postLogin: (req, res) => {
+      const { email, password } = req.body;
+      const user = this.db
+        .query(
+          /*sql*/ `
+          SELECT "id", "password_hash"
+          FROM "users" WHERE "email" = ?
+        `,
+        )
+        .get(email);
+      if (!user || password !== user.password_hash) {
+        throw new RouteError(404, "invalid email or password");
+      }
+      res.setHeader("Set-Cookie", `sid=${user.id}; Path=/`);
+      res.status(200).json("teste");
+    },
   } satisfies Api["handlers"];
 
   tables(): void {
@@ -29,5 +45,6 @@ export class AuthApi extends Api {
 
   routes(): void {
     this.router.post("/auth/user", this.handlers.postUser);
+    this.router.post("/auth/login", this.handlers.postLogin);
   }
 }
