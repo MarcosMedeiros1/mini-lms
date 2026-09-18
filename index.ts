@@ -1,5 +1,6 @@
 import { readFile } from "node:fs/promises";
 import { AuthApi } from "./api/auth/index.ts";
+import { sha256 } from "./api/auth/utils.ts";
 import { LmsApi } from "./api/lms/index.ts";
 import { Core } from "./core/core.ts";
 import { logger } from "./core/middleware/logger.ts";
@@ -19,21 +20,22 @@ core.router.get("/", async (req, res) => {
 });
 
 core.router.get("/safe", async (req, res) => {
-  const id = req.headers.cookie?.match(/sid=(\d+)/)?.[1];
-  if (!id) {
+  const sid = req.headers.cookie?.replace("sid=", "");
+  if (!sid) {
     throw new RouteError(401, "not authenticated");
   }
-  const user = core.db
+  const sid_hashh = sha256(sid);
+  const session = core.db
     .query(
       /*sql*/ `
-      SELECT "email", "name" FROM "users" WHERE "id" = ?
+      SELECT "user_id" FROM "sessions" WHERE "sid_hash" = ?
     `,
     )
-    .get(id);
-  if (!user) {
+    .get(sid_hashh);
+  if (!session) {
     throw new RouteError(404, "user not found");
   }
-  res.status(200).json(user);
+  res.status(200).json(session);
 });
 
 core.init();
