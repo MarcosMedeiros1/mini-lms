@@ -43,7 +43,7 @@ export class AuthApi extends Api {
         ua: req.headers["user-agent"] ?? "",
       });
 
-      res.setHeader("Set-Cookie", cookie);
+      res.setCookie(cookie);
       res.status(200).json({ title: "Authenticated" });
     },
   } satisfies Api["handlers"];
