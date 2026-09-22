@@ -21,7 +21,7 @@ export class AuthApi extends Api {
       if (writeResult.changes === 0) {
         throw new RouteError(400, "Error on create user");
       }
-      res.status(200).json({ title: "User created" });
+      res.status(201).json({ title: "User created" });
     },
     postLogin: async (req, res) => {
       const { email, password } = req.body;
@@ -37,14 +37,14 @@ export class AuthApi extends Api {
         throw new RouteError(404, "invalid email or password");
       }
 
-      const { sid } = await this.session.create({
+      const { cookie } = await this.session.create({
         userId: user.id,
         ip: req.ip,
         ua: req.headers["user-agent"] ?? "",
       });
 
-      res.setHeader("Set-Cookie", `sid=${sid}; Path=/`);
-      res.status(200).json("teste");
+      res.setHeader("Set-Cookie", cookie);
+      res.status(200).json({ title: "Authenticated" });
     },
   } satisfies Api["handlers"];
 

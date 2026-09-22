@@ -20,18 +20,18 @@ core.router.get("/", async (req, res) => {
 });
 
 core.router.get("/safe", async (req, res) => {
-  const sid = req.headers.cookie?.replace("sid=", "");
+  const sid = req.cookies["__Secure-sid"];
   if (!sid) {
     throw new RouteError(401, "not authenticated");
   }
-  const sid_hashh = sha256(sid);
+  const sid_hash = sha256(sid);
   const session = core.db
     .query(
       /*sql*/ `
       SELECT "user_id" FROM "sessions" WHERE "sid_hash" = ?
     `,
     )
-    .get(sid_hashh);
+    .get(sid_hash);
   if (!session) {
     throw new RouteError(404, "user not found");
   }
